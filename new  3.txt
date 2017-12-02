@@ -1,0 +1,400 @@
+
+1.import java.util.Collections;
+
+2.import java.util.Comparator;
+
+3.import java.util.LinkedList;
+
+4.import java.util.List;
+
+5.import java.util.Scanner;
+
+6.import java.util.Stack;
+
+7. 
+
+8.public class KruskalAlgorithm
+
+9.{
+
+10.    private List<Edge> edges;
+
+11.    private int numberOfVertices;
+
+12.    public static final int MAX_VALUE = 999;
+
+13.    private int visited[];
+
+14.    private int spanning_tree[][];
+
+15. 
+
+16.    public KruskalAlgorithm(int numberOfVertices)
+
+17.    {
+
+18.        this.numberOfVertices = numberOfVertices;
+
+19.        edges = new LinkedList<Edge>();
+
+20.        visited = new int[this.numberOfVertices + 1];
+
+21.        spanning_tree = new int[numberOfVertices + 1][numberOfVertices + 1];
+
+22.    }
+
+23. 
+
+24.    public void kruskalAlgorithm(int adjacencyMatrix[][])
+
+25.    {
+
+26.        boolean finished = false;
+
+27.        for (int source = 1; source <= numberOfVertices; source++)
+
+28.        {
+
+29.            for (int destination = 1; destination <= numberOfVertices; destination++)
+
+30.            {
+
+31.                if (adjacencyMatrix[source][destination] != MAX_VALUE && source != destination)
+
+32.                {
+
+33.                    Edge edge = new Edge();
+
+34.                    edge.sourcevertex = source;
+
+35.                    edge.destinationvertex = destination;
+
+36.                    edge.weight = adjacencyMatrix[source][destination];
+
+37.                    adjacencyMatrix[destination][source] = MAX_VALUE;
+
+38.                    edges.add(edge);
+
+39.                }
+
+40.            }
+
+41.        }
+
+42.        Collections.sort(edges, new EdgeComparator());
+
+43.        CheckCycle checkCycle = new CheckCycle();
+
+44.        for (Edge edge : edges)
+
+45.        {
+
+46.            spanning_tree[edge.sourcevertex][edge.destinationvertex] = edge.weight;
+
+47.            spanning_tree[edge.destinationvertex][edge.sourcevertex] = edge.weight;
+
+48.            if (checkCycle.checkCycle(spanning_tree, edge.sourcevertex))
+
+49.            {
+
+50.                spanning_tree[edge.sourcevertex][edge.destinationvertex] = 0;
+
+51.                spanning_tree[edge.destinationvertex][edge.sourcevertex] = 0;
+
+52.                edge.weight = -1;
+
+53.                continue;
+
+54.            }
+
+55.            visited[edge.sourcevertex] = 1;
+
+56.            visited[edge.destinationvertex] = 1;
+
+57.            for (int i = 0; i < visited.length; i++)
+
+58.            {
+
+59.                if (visited[i] == 0)
+
+60.                {
+
+61.                    finished = false;
+
+62.                    break;
+
+63.                } else
+
+64.                {
+
+65.                    finished = true;
+
+66.                }
+
+67.            }
+
+68.            if (finished)
+
+69.                break;
+
+70.        }
+
+71.        System.out.println("The spanning tree is ");
+
+72.        for (int i = 1; i <= numberOfVertices; i++)
+
+73.            System.out.print("\t" + i);
+
+74.        System.out.println();
+
+75.        for (int source = 1; source <= numberOfVertices; source++)
+
+76.        {
+
+77.            System.out.print(source + "\t");
+
+78.            for (int destination = 1; destination <= numberOfVertices; destination++)
+
+79.            {
+
+80.                System.out.print(spanning_tree[source][destination] + "\t");
+
+81.            }
+
+82.            System.out.println();
+
+83.        }
+
+84.    }
+
+85. 
+
+86.    public static void main(String... arg)
+
+87.    {
+
+88.        int adjacency_matrix[][];
+
+89.        int number_of_vertices;
+
+90. 
+
+91.        Scanner scan = new Scanner(System.in);
+
+92.        System.out.println("Enter the number of vertices");
+
+93.        number_of_vertices = scan.nextInt();
+
+94.        adjacency_matrix = new int[number_of_vertices + 1][number_of_vertices + 1];
+
+95. 
+
+96.        System.out.println("Enter the Weighted Matrix for the graph");
+
+97.        for (int i = 1; i <= number_of_vertices; i++)
+
+98.        {
+
+99.            for (int j = 1; j <= number_of_vertices; j++)
+
+100.            {
+
+101.                adjacency_matrix[i][j] = scan.nextInt();
+
+102.                if (i == j)
+
+103.                {
+
+104.                    adjacency_matrix[i][j] = 0;
+
+105.                    continue;
+
+106.                }
+
+107.                if (adjacency_matrix[i][j] == 0)
+
+108.                {
+
+109.                    adjacency_matrix[i][j] = MAX_VALUE;
+
+110.                }
+
+111.            }
+
+112.        }
+
+113.        KruskalAlgorithm kruskalAlgorithm = new KruskalAlgorithm(number_of_vertices);
+
+114.        kruskalAlgorithm.kruskalAlgorithm(adjacency_matrix);
+
+115.        scan.close();
+
+116.    }
+
+117.}
+
+118. 
+
+119.class Edge
+
+120.{
+
+121.    int sourcevertex;
+
+122.    int destinationvertex;
+
+123.    int weight;
+
+124.}
+
+125. 
+
+126.class EdgeComparator implements Comparator<Edge>
+
+127.{
+
+128.    @Override
+
+129.    public int compare(Edge edge1, Edge edge2)
+
+130.    {
+
+131.        if (edge1.weight < edge2.weight)
+
+132.            return -1;
+
+133.        if (edge1.weight > edge2.weight)
+
+134.            return 1;
+
+135.        return 0;
+
+136.    }
+
+137.}
+
+138. 
+
+139.class CheckCycle
+
+140.{
+
+141.    private Stack<Integer> stack;
+
+142.    private int adjacencyMatrix[][];
+
+143. 
+
+144.    public CheckCycle()
+
+145.    {
+
+146.        stack = new Stack<Integer>();
+
+147.    }
+
+148. 
+
+149.    public boolean checkCycle(int adjacency_matrix[][], int source)
+
+150.    {
+
+151.        boolean cyclepresent = false;
+
+152.        int number_of_nodes = adjacency_matrix[source].length - 1;
+
+153. 
+
+154.        adjacencyMatrix = new int[number_of_nodes + 1][number_of_nodes + 1];
+
+155.        for (int sourcevertex = 1; sourcevertex <= number_of_nodes; sourcevertex++)
+
+156.        {
+
+157.            for (int destinationvertex = 1; destinationvertex <= number_of_nodes; destinationvertex++)
+
+158.            {
+
+159.                adjacencyMatrix[sourcevertex][destinationvertex] = adjacency_matrix[sourcevertex[destinationvertex];
+
+160.            }
+
+161.         }
+
+162. 
+
+163.         int visited[] = new int[number_of_nodes + 1];
+
+164.         int element = source;
+
+165.         int i = source;
+
+166.         visited[source] = 1;
+
+167.         stack.push(source);
+
+168. 
+
+169.         while (!stack.isEmpty())
+
+170.         {
+
+171.             element = stack.peek();
+
+172.             i = element;
+
+173.             while (i <= number_of_nodes)
+
+174.             {
+
+175.                 if (adjacencyMatrix[element][i] >= 1 && visited[i] == 1)
+
+176.                 {
+
+177.                     if (stack.contains(i))
+
+178.                     {
+
+179.                         cyclepresent = true;
+
+180.                         return cyclepresent;
+
+181.                     }
+
+182.                 }
+
+183.                 if (adjacencyMatrix[element][i] >= 1 && visited[i] == 0)
+
+184.                 {
+
+185.                     stack.push(i);
+
+186.                     visited[i] = 1;
+
+187.                     adjacencyMatrix[element][i] = 0;// mark as labelled;
+
+188.                     adjacencyMatrix[i][element] = 0;
+
+189.                     element = i;
+
+190.                     i = 1;
+
+191.                     continue;
+
+192.                  }
+
+193.                  i++;
+
+194.             }
+
+195.             stack.pop();
+
+196.        }
+
+197.        return cyclepresent;
+
+198.    }
+
+199.}
+
+

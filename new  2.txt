@@ -1,0 +1,1 @@
+ if(next.contains(".jpg")||next.contains("Category:")||next.contains("Wikipedia:")||next.contains("Help:")||next.contains("Portal:")||next.contains("Main_Page")||next.contains(".php")||next.contains("Link_rot")||next.contains("cite_ref")||next.contains("cite_note")||!next.contains("en.wikipedia")||next.contains("Special:")||next.contains("Template")){}
